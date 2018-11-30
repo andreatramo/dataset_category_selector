@@ -1,4 +1,3 @@
-import numpy as np
 import json
 import csv
 from shutil import copy, copytree
@@ -30,7 +29,7 @@ class Database(object):
 
         self.my_obj_list = []
         self.read_obj_list(input_file_path[0])
-        self.input_file = input_file_path[1, :]
+        self.input_file = input_file_path[1:]
         self.output_dir = output_file_path
         self.img_not_found = 0
 
@@ -66,24 +65,19 @@ class Database(object):
         with open(file_path, 'r') as txtfile:
             line = txtfile.readline()
             while line:
+                label = txtfile.readline().split("\"")[1]
+                idx = int(txtfile.readline().split(" ")[3].split("\n")[0])
+                name = txtfile.readline().split("\"")[1]
+
+                self.my_obj_list.append(self.MyObject(idx, label, name))
                 txtfile.readline()
                 line = txtfile.readline()
-                label = line.split("\"")[1]
-                line = txtfile.readline()
-                id = line.split(" ")[1]
-                line = txtfile.readline()
-                name = line.split("\"")[1]
 
-                obj = self.MyObject(id, label, name)
-                self.my_obj_list.append(obj)
-
-                txtfile.readline()
-
-    def contain(self, idx):
+    def is_in(self, idx):
 
         length = len(self.my_obj_list)
         if 0 < idx < 13 and length > 0:
-            for i in length:
+            for i in range(length):
                 if idx == self.my_obj_list[i]:
                     return True
         return False
@@ -111,7 +105,7 @@ class OpenimageDB(Database):
                 print("      2. Computing categories and images...")
 
                 for row in csv_reader:
-                    if self.contain(row[1]):
+                    if self.is_in(row[1]):
                         # copy image if exist
                         image_path = self.input_file[i+6] + "/" + row[0] + ".jpg"
                         copied = self.copy_image(image_path, self.output_dir + "/images/" + directory_name[len(directory_name)-1])
@@ -138,7 +132,7 @@ class OpenimageDB(Database):
             with open(self.input_file[i + 3], 'r') as csvfile:
                 csv_reader = csv.reader(csvfile)
                 for row in csv_reader:
-                    if self.contain(row[2]):
+                    if self.is_in(row[2]):
                         # add line to the new file
                         selected_verification += ','.join(row) + "\n"
 
@@ -190,7 +184,7 @@ class CocoDB(Database):
             selected_categories = []
             categories_data = datas['categories']
             for category in categories_data:
-                if self.contain(category['id']):
+                if self.is_in(category['id']):
                     selected_categories.append(category)
             selected_datas['categories'] = selected_categories
 
@@ -217,7 +211,7 @@ class CocoDB(Database):
 
             for annotation in annotations_datas:
                 # check if is one of mine objects
-                if self.contain(annotation['category_id']):
+                if self.is_in(annotation['category_id']):
                     # add the object to the selected list
                     selected_annotations.append(annotation)
                     # update object_found array
