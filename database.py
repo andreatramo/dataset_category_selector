@@ -34,7 +34,11 @@ class Database(object):
         self.img_not_found = 0
 
     def get_num_object_found(self):
-        return self.my_obj_list
+
+        obj_found = list()
+        for my_obj in self.my_obj_list:
+            obj_found.append(my_obj.num)
+        return obj_found
 
     def get_img_not_found(self):
         return self.img_not_found
@@ -75,17 +79,27 @@ class Database(object):
 
     def is_in(self, idx):
 
-        try:
-            idx_int = int(idx)
-        except:
-            return False
-
-        length = len(self.my_obj_list)
-        if 0 < idx_int < 13 and length > 0:
-            for i in range(length):
-                if idx == self.my_obj_list[i]:
-                    return True
+        if type(idx) is int:
+            length = len(self.my_obj_list)
+            if -1 < idx < 13 and length > 0:
+                for i in range(length):
+                    if idx == self.my_obj_list[i].get_id():
+                        return True
         return False
+
+    def convert_label2idx(self, label):
+
+        for my_obj in self.my_obj_list:
+            if my_obj.label == label:
+                return my_obj.get_id()
+        return -1
+
+    def convert_idx2label(self, idx):
+
+        for my_obj in self.my_obj_list:
+            if my_obj.idx == idx:
+                return my_obj.label
+        return "None"
 
 
 class OpenimageDB(Database):
@@ -110,7 +124,8 @@ class OpenimageDB(Database):
                 print("      2. Computing categories and images...")
 
                 for row in csv_reader:
-                    if self.is_in(row[1]):
+                    idx = self.convert_label2idx(row[2])
+                    if self.is_in(idx):
                         # copy image if exist
                         image_path = self.input_file[i+6] + "/" + row[0] + ".jpg"
                         copied = self.copy_image(image_path, self.output_dir + "/images/" + directory_name[len(directory_name)-1])
@@ -118,7 +133,7 @@ class OpenimageDB(Database):
                         if copied:
                             selected_box += ','.join(row) + "\n"
                             # update statistics
-                            self.my_obj_list[row[1]].update_num()
+                            self.my_obj_list[idx].update_num()
                         else:
                             self.img_not_found += 1
 
