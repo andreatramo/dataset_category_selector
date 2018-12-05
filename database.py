@@ -75,8 +75,13 @@ class Database(object):
 
     def is_in(self, idx):
 
+        try:
+            idx_int = int(idx)
+        except:
+            return False
+
         length = len(self.my_obj_list)
-        if 0 < int(idx) < 13 and length > 0:
+        if 0 < idx_int < 13 and length > 0:
             for i in range(length):
                 if idx == self.my_obj_list[i]:
                     return True
@@ -105,7 +110,7 @@ class OpenimageDB(Database):
                 print("      2. Computing categories and images...")
 
                 for row in csv_reader:
-                    if type(row[1]) is int and self.is_in(row[1]):
+                    if self.is_in(row[1]):
                         # copy image if exist
                         image_path = self.input_file[i+6] + "/" + row[0] + ".jpg"
                         copied = self.copy_image(image_path, self.output_dir + "/images/" + directory_name[len(directory_name)-1])
@@ -132,7 +137,7 @@ class OpenimageDB(Database):
             with open(self.input_file[i + 3], 'r') as csvfile:
                 csv_reader = csv.reader(csvfile)
                 for row in csv_reader:
-                    if type(row[2]) is int and self.is_in(row[2]):
+                    if self.is_in(row[2]):
                         # add line to the new file
                         selected_verification += ','.join(row) + "\n"
 
