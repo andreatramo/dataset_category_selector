@@ -48,15 +48,17 @@ class Database(object):
         except FileNotFoundError:
             self.img_not_found += 1
             return False
-        except IsADirectoryError:
-            for img in glob.glob("*.jpg"):
-                try:
-                    copy(src + "/" + img, dst)
-                except FileNotFoundError:
-                    self.img_not_found += 1
-                    return False
+        return True
 
-            return True
+    def copy_images(self, src, dst):
+        if not os.path.exists(dst):
+            os.makedirs(dst)
+        for img in glob.glob(src + "/" + "*.jpg"):
+            try:
+                copy(img, dst)
+            except FileNotFoundError:
+                self.img_not_found += 1
+                return False
 
         return True
 

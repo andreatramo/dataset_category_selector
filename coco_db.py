@@ -63,12 +63,12 @@ class CocoDB(Database):
             selected_images = []
 
             try:
-                annotations_datas = datas['annotations']
                 print("      3. Computing annotations and images...")
+                annotations_datas = datas['annotations']
             except:
                 selected_datas['images'] = datas['images']
                 # copy all the image in the directory
-                self.copy_image(self.input_file[i], images_out_path)
+                self.copy_images(self.input_file[i], images_out_path)
                 # write the json file
                 if not os.path.exists(self.output_dir + "/annotations"):
                     os.makedirs(self.output_dir + "/annotations")
@@ -82,12 +82,11 @@ class CocoDB(Database):
             for annotation in annotations_datas:
                 # check if is one of mine objects
                 idx = self.convert_cocoid2id(annotation['category_id'])
-                # if self.is_my_obj(idx):
                 if idx > 0:
                     # add the object to the selected list
                     selected_annotations.append(annotation)
                     # update object_found array
-                    self.my_obj_list[idx].update_num()
+                    self.my_obj_list[idx-1].update_num()
                     # copy the image in the new location
                     for image in images_datas:
                         if image['id'] == annotation['image_id']:
