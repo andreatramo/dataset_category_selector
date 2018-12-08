@@ -36,8 +36,7 @@ class OpenimageDB(Database):
                     if self.is_my_obj(idx):
                         # copy image if exist
                         image_path = self.input_file[i+6] + "/" + row[0] + ".jpg"
-                        copied = self.copy_image(image_path, self.output_dir + "/images/"
-                                                 + directory_name[len(directory_name)-1])
+                        copied = self.copy_image(image_path, self.output_dir + "/images/" + directory_name[len(directory_name)-1])
                         # add line to the new file
                         if copied:
                             selected_box += ','.join(row) + "\n"
@@ -61,6 +60,9 @@ class OpenimageDB(Database):
             with open(self.input_file[i + 3], 'r') as csv_file:
                 csv_reader = csv.reader(csv_file)
                 for row in csv_reader:
+                    if row[2] == "LabelName":
+                        selected_box += ','.join(row) + "\n"
+                        continue
                     idx = self.convert_label2idx(row[2])
                     if self.is_my_obj(idx):
                         # add line to the new file

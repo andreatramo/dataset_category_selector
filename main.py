@@ -59,12 +59,9 @@ def main():
         # train_box = "/home/andreatramo/datasets/openimage/openimage_original/annotations/train-annotations-bbox.csv"
         # val_box = "/home/andreatramo/datasets/openimage/openimage_original/annotations/validation-annotations-bbox.csv"
         # test_box = "/home/andreatramo/datasets/openimage/openimage_original/annotations/test-annotations-bbox.csv"
-        # train_verification = "/home/andreatramo/datasets/openimage/openimage_original/annotations/train-annotations-human-" \
-        #                      "imagelabels-boxable.csv"
-        # val_verification = "/home/andreatramo/datasets/openimage/openimage_original/annotations/validation-annotations-human-" \
-        #                    "imagelabels-boxable.csv"
-        # test_verification = "/home/andreatramo/datasets/openimage/openimage_original/annotations/test-annotations-human-" \
-        #                     "imagelabels-boxable.csv"
+        # train_verification = "/home/andreatramo/datasets/openimage/openimage_original/annotations/train-annotations-human-imagelabels-boxable.csv"
+        # val_verification = "/home/andreatramo/datasets/openimage/openimage_original/annotations/validation-annotations-human-imagelabels-boxable.csv"
+        # test_verification = "/home/andreatramo/datasets/openimage/openimage_original/annotations/test-annotations-human-imagelabels-boxable.csv"
         # train_image_dir = "/home/andreatramo/datasets/openimage/openimage_original/images/train"
         # val_image_dir = "/home/andreatramo/datasets/openimage/openimage_original/images/validation"
         # test_image_dir = "/home/andreatramo/datasets/openimage/openimage_original/images/test"
@@ -75,12 +72,9 @@ def main():
         train_box = "/Users/Andrea/Documents/datasets/openimage/openimage_original/annotations/train-annotations-bbox.csv"
         val_box = "/Users/Andrea/Documents/datasets/openimage/openimage_original/annotations/validation-annotations-bbox.csv"
         test_box = "/Users/Andrea/Documents/datasets/openimage/openimage_original/annotations/test-annotations-bbox.csv"
-        train_verification = "/Users/Andrea/Documents/datasets/openimage/openimage_original/annotations/train-annotations-human-" \
-                             "imagelabels-boxable.csv"
-        val_verification = "/Users/Andrea/Documents/datasets/openimage/openimage_original/annotations/validation-annotations-human-" \
-                           "imagelabels-boxable.csv"
-        test_verification = "/Users/Andrea/Documents/datasets/openimage/openimage_original/annotations/test-annotations-human-" \
-                            "imagelabels-boxable.csv"
+        train_verification = "/Users/Andrea/Documents/datasets/openimage/openimage_original/annotations/train-annotations-human-imagelabels-boxable.csv"
+        val_verification = "/Users/Andrea/Documents/datasets/openimage/openimage_original/annotations/validation-annotations-human-imagelabels-boxable.csv"
+        test_verification = "/Users/Andrea/Documents/datasets/openimage/openimage_original/annotations/test-annotations-human-imagelabels-boxable.csv"
         train_image_dir = "/Users/Andrea/Documents/openimage/openimage_original/images/train"
         val_image_dir = "/Users/Andrea/Documents/datasets/openimage/openimage_original/images/validation"
         test_image_dir = "/Users/Andrea/Documents/datasets/openimage/openimage_original/images/test"

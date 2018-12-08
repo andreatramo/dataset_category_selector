@@ -7,8 +7,8 @@ class CocoDB(Database):
 
     class MyCocoObject(Database.MyObject):
 
-        def __init__(self, id, label, name, coco_id):
-            super(CocoDB.MyCocoObject, self).__init__(id, label, name)
+        def __init__(self, idx, label, name, coco_id):
+            super(CocoDB.MyCocoObject, self).__init__(idx, label, name)
             self.coco_id = coco_id
 
         def get_coco_id(self):

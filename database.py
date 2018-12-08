@@ -1,19 +1,20 @@
 from shutil import copy, copytree
 import os
+import glob
 
 
 class Database(object):
 
     class MyObject:
 
-        def __init__(self, id, label, name):
-            self.id = id
+        def __init__(self, idx, label, name):
+            self.idx = idx
             self.label = label
             self.name = name
             self.num = 0
 
         def get_id(self):
-            return self.id
+            return self.idx
 
         def get_label(self):
             return self.label
@@ -26,7 +27,6 @@ class Database(object):
 
     def __init__(self, input_file_path, output_file_path):
         self.my_obj_list = []
-        self.read_obj_list(input_file_path[0])
         self.input_file = input_file_path[1:]
         self.output_dir = output_file_path
         self.img_not_found = 0
@@ -49,7 +49,13 @@ class Database(object):
             self.img_not_found += 1
             return False
         except IsADirectoryError:
-            copytree(src, dst)
+            for img in glob.glob("*.jpg"):
+                try:
+                    copy(src + "/" + img, dst)
+                except FileNotFoundError:
+                    self.img_not_found += 1
+                    return False
+
             return True
 
         return True
