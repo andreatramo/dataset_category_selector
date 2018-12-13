@@ -54,7 +54,10 @@ class CocoDB(Database):
             selected_categories = []
             categories_data = datas['categories']
             for category in categories_data:
-                if self.is_my_obj(category['id']):
+                idx = self.convert_cocoid2id(category['id'])
+                if self.is_my_obj(idx):
+                    # substitute coco_id with new id
+                    category['id'] = idx
                     selected_categories.append(category)
             selected_datas['categories'] = selected_categories
 
@@ -83,6 +86,8 @@ class CocoDB(Database):
                 # check if is one of mine objects
                 idx = self.convert_cocoid2id(annotation['category_id'])
                 if idx > 0:
+                    # substitute coco_id with new id
+                    annotation['category_id'] = idx
                     # add the object to the selected list
                     selected_annotations.append(annotation)
                     # update object_found array
