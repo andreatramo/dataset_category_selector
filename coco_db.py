@@ -20,99 +20,96 @@ class CocoDB(Database):
 
     def img_selector(self):
 
-        # we do this procedure for train and validation and test annotations/images
-        for i in range(3):
+        # directory name could be: train..., valid... or test..
+        directory_name = self.input_file[2]
+        # path where we are going to save the selected images
+        images_out_path = self.output_dir + '/images/' + directory_name
 
-            # directory name could be: train..., valid... or test..
-            directory_name = self.input_file[i].split("/")
-            # path where we are going to save the selected images
-            images_out_path = self.output_dir + '/images/' + directory_name[len(directory_name)-1]
+        print("   START: " + directory_name)
 
-            print("   START: " + directory_name[len(directory_name)-1])
+        selected_datas = {}
 
-            selected_datas = {}
+        print("      1. Loading json file...")
 
-            print("      1. Loading json file...")
+        # open json file
+        with open(self.input_file[0]) as annotation_file:
+            datas = json.load(annotation_file)
 
-            # open json file
-            with open(self.input_file[i+3]) as annotation_file:
-                datas = json.load(annotation_file)
+        # name of the original json file
+        file_name = self.input_file[0].split("/")
+        # path where we are going to save the new json file
+        annotations_out_path = self.output_dir + "/annotations/new_" + file_name[len(file_name)-1]
 
-            # name of the original json file
-            file_name = self.input_file[i+3].split("/")
-            # path where we are going to save the new json file
-            annotations_out_path = self.output_dir + "/annotations/new_" + file_name[len(file_name)-1]
+        # copy all the info
+        selected_datas['info'] = datas['info']
+        # copy all the licenses
+        selected_datas['licenses'] = datas['licenses']
 
-            # copy all the info
-            selected_datas['info'] = datas['info']
-            # copy all the licenses
-            selected_datas['licenses'] = datas['licenses']
+        print("      2. Computing categories...")
 
-            print("      2. Computing categories...")
+        # copy only the used categories
+        selected_categories = []
+        categories_data = datas['categories']
+        for category in categories_data:
+            idx = self.convert_cocoid2id(category['id'])
+            if self.is_my_obj(idx):
+                # substitute coco_id with new id
+                category['id'] = idx
+                selected_categories.append(category)
+        selected_datas['categories'] = selected_categories
 
-            # copy only the used categories
-            selected_categories = []
-            categories_data = datas['categories']
-            for category in categories_data:
-                idx = self.convert_cocoid2id(category['id'])
-                if self.is_my_obj(idx):
-                    # substitute coco_id with new id
-                    category['id'] = idx
-                    selected_categories.append(category)
-            selected_datas['categories'] = selected_categories
+        # copy only the used annotations and the used images
+        selected_annotations = []
+        selected_images = []
 
-            # copy only the used annotations and the used images
-            selected_annotations = []
-            selected_images = []
-
-            try:
-                print("      3. Computing annotations and images...")
-                annotations_datas = datas['annotations']
-            except:
-                selected_datas['images'] = datas['images']
-                # copy all the image in the directory
-                self.copy_images(self.input_file[i], images_out_path)
-                # write the json file
-                if not os.path.exists(self.output_dir + "/annotations"):
-                    os.makedirs(self.output_dir + "/annotations")
-                with open(annotations_out_path, 'w+') as outfile:
-                    json.dump(selected_datas, outfile)
-                print("   END: " + directory_name[len(directory_name) - 1])
-                continue
-
-            images_datas = datas['images']
-
-            for annotation in annotations_datas:
-                # check if is one of mine objects
-                idx = self.convert_cocoid2id(annotation['category_id'])
-                if idx > 0:
-                    # substitute coco_id with new id
-                    annotation['category_id'] = idx
-                    # add the object to the selected list
-                    selected_annotations.append(annotation)
-                    # update object_found array
-                    self.my_obj_list[idx-1].update_num()
-                    # copy the image in the new location
-                    for image in images_datas:
-                        if image['id'] == annotation['image_id']:
-                            image_path = self.input_file[i] + "/" + image['file_name']
-                            copied = self.copy_image(image_path, images_out_path)
-                            # add line to the new file
-                            if copied:
-                                selected_images.append(image)
-                            else:
-                                self.img_not_found += 1
-
-            selected_datas['annotations'] = selected_annotations
-            selected_datas['images'] = selected_images
-
+        if self.input_file[2] == "test":
+            print("      3. Computing annotations and images...")
+            selected_datas['images'] = datas['images']
+            # copy all the image in the directory
+            self.copy_images(self.input_file[1], images_out_path)
             # write the json file
             if not os.path.exists(self.output_dir + "/annotations"):
                 os.makedirs(self.output_dir + "/annotations")
             with open(annotations_out_path, 'w+') as outfile:
                 json.dump(selected_datas, outfile)
+            print("   END: " + directory_name)
+            return
 
-            print("   END: " + directory_name[len(directory_name)-1])
+        print("      3. Computing annotations and images...")
+        annotations_datas = datas['annotations']
+        images_datas = datas['images']
+
+        for annotation in annotations_datas:
+            # check if is one of mine objects
+            idx = self.convert_cocoid2id(annotation['category_id'])
+            if idx > 0 and self.my_obj_list[idx-1].get_num() < self.my_obj_list[idx-1].MAX_OBJ_NUM:
+                # substitute coco_id with new id
+                annotation['category_id'] = idx
+                # add the object to the selected list
+                selected_annotations.append(annotation)
+                # update object_found array
+                self.my_obj_list[idx-1].update_num()
+                # copy the image in the new location
+                for image in images_datas:
+                    if image['id'] == annotation['image_id']:
+                        image_path = self.input_file[1] + "/" + image['file_name']
+                        copied = self.copy_image(image_path, images_out_path)
+                        # add line to the new file
+                        if copied:
+                            selected_images.append(image)
+                        else:
+                            self.img_not_found += 1
+
+        selected_datas['annotations'] = selected_annotations
+        selected_datas['images'] = selected_images
+
+        # write the json file
+        if not os.path.exists(self.output_dir + "/annotations"):
+            os.makedirs(self.output_dir + "/annotations")
+        with open(annotations_out_path, 'w+') as outfile:
+            json.dump(selected_datas, outfile)
+
+        print("   END: " + directory_name)
 
     def read_obj_list(self, file_path):
         # example:
