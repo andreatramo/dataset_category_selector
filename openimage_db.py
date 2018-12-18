@@ -33,7 +33,7 @@ class OpenimageDB(Database):
                         selected_box += ','.join(row) + "\n"
                         continue
                     idx = self.convert_label2idx(row[2])
-                    if self.is_my_obj(idx):
+                    if self.is_my_obj(idx) and self.my_obj_list[idx-1].get_num() < self.my_obj_list[idx-1].MAX_OBJ_NUM:
                         # copy image if exist
                         image_path = self.input_file[i+6] + "/" + row[0] + ".jpg"
                         copied = self.copy_image(image_path, self.output_dir + "/images/" + directory_name[len(directory_name)-1])
