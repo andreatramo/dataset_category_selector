@@ -32,12 +32,6 @@ FLAGS = tf.flags.FLAGS
 
 def main():
 
-    database_type = "openimage"
-
-    if database_type != "openimage":
-        print("UNCORRECT DATASET: use OpenImage dataset!")
-        return
-
     # check if there are all the input
     required_flags = [
         'input_label_map',
@@ -60,7 +54,8 @@ def main():
         now_input = [FLAGS.input_label_map,
                      input_file[i][0],
                      input_file[i][1],
-                     input_file[i][2]]
+                     input_file[i][2],
+                     input_file[i][3]]
         database = OpenimageDB(now_input, FLAGS.output_dir)
         database.img_selector()
         print("[ " + input_file[i][2] + " ]")

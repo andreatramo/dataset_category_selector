@@ -18,17 +18,13 @@ tf.flags.DEFINE_string('input_val_dir', "/home/andreatramo/datasets/coco/coco_or
 tf.flags.DEFINE_string('input_test_dir', "/home/andreatramo/datasets/coco/coco_original/images/test2017",
                        'Path to the test image directory')
 
-tf.flags.DEFINE_string('output_dir', "/home/andreatramo/datasets/openimage/my_openimage",
+tf.flags.DEFINE_string('output_dir', "/home/andreatramo/datasets/openimage/my_coco",
                        'Path to the output directory')
 
 FLAGS = tf.flags.FLAGS
 
 
 def main():
-
-    if FLAGS.database_type != "coco":
-        print("UNCORRECT DATASET: use COCO dataset!")
-        return
 
     # check if there are all the input
     required_flags = [
