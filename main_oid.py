@@ -1,5 +1,8 @@
 from openimage_db import OpenimageDB
 import tensorflow as tf
+from tfrecord_utils import TFRecordWriter
+import os
+
 
 tf.flags.DEFINE_string('input_label_map', "/home/andreatramo/datasets/openimage/my_oid_label_map.pbtxt",
                        'Path to the label map proto')
@@ -30,6 +33,7 @@ tf.flags.DEFINE_string('output_dir', "/home/andreatramo/datasets/openimage/my_op
 
 FLAGS = tf.flags.FLAGS
 
+
 def main():
 
     # check if there are all the input
@@ -50,17 +54,39 @@ def main():
                   1: [FLAGS.input_val_box, FLAGS.input_val_verification, FLAGS.input_val_dir, "validation"],
                   2: [FLAGS.input_test_box, FLAGS.input_test_verification, FLAGS.input_test_dir, "test"]}
 
-    for i in range(3):
+    i = 1
+    tfrecord_path = FLAGS.output_dir + "/" + "my_oid_dataset.tfrecord_1"
+
+    while os.path.exists(tfrecord_path):
+        i += 1
+        tfrecord_path = tfrecord_path[:len(tfrecord_path)-1] + str(i)
+
+    writer = TFRecordWriter(tfrecord_path)
+
+    images_not_found = 0
+
+    step = 3
+
+    for i in range(step):
         now_input = [FLAGS.input_label_map,
                      input_file[i][0],
                      input_file[i][1],
                      input_file[i][2],
                      input_file[i][3]]
         database = OpenimageDB(now_input, FLAGS.output_dir)
-        database.img_selector()
-        print("[ " + input_file[i][2] + " ]")
-        print("    Number of object found: " + str(database.get_num_object_found()))
-        print("    Number of images not found: " + str(database.get_img_not_found()))
+        img_list = database.img_selector()
+        if i == 0:
+            object_found = database.get_num_object_found()
+        else:
+            object_found += database.get_num_object_found()
+        images_not_found += database.get_img_not_found()
+
+        writer.write_tfrecord(img_list)
+
+    writer.close_tfrecord()
+
+    print("Number of object found: " + str(object_found))
+    print("Number of images not found: " + str(images_not_found))
 
     return
 

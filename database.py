@@ -1,6 +1,7 @@
-from shutil import copy, copytree
+from shutil import copy
 import os
 import glob
+import numpy as np
 
 
 class Database(object):
@@ -8,12 +9,6 @@ class Database(object):
     class MyObject:
 
         MAX_OBJ_NUM = 10000
-
-        # def __init__(self, idx, label, name):
-        #     self.idx = idx
-        #     self.label = label
-        #     self.name = name
-        #     self.num = 0
 
         def __init__(self, idx, label, name):
             self.idx = idx
@@ -40,9 +35,11 @@ class Database(object):
         self.img_not_found = 0
 
     def get_num_object_found(self):
-        obj_found = []
+        obj_found = np.zeros(len(self.my_obj_list))
+        i = 0
         for my_obj in self.my_obj_list:
-            obj_found.append(my_obj.get_num())
+            obj_found[i] = (my_obj.get_num())
+            i += 1
         return obj_found
 
     def get_img_not_found(self):
