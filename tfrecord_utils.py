@@ -34,11 +34,11 @@ def create_tf_example(example):
     ymins = example.ymins  # List of normalized top y coordinates in bounding box (1 per box)
     ymaxs = example.ymaxs  # List of normalized bottom y coordinates in bounding box (1 per box)
 
-    is_occluded = example.is_occluded
-    is_truncated = example.is_truncated
-    is_group_of = example.is_group_of
-    is_depicted = example.is_depicted
-    is_inside = example.is_inside
+    # is_occluded = example.is_occluded
+    # is_truncated = example.is_truncated
+    # is_group_of = example.is_group_of
+    # is_depicted = example.is_depicted
+    # is_inside = example.is_inside
 
     classes_text = example.text  # List of string class name of bounding box (1 per box)
     classes = example.label  # List of integer class id of bounding box (1 per box)
@@ -54,12 +54,12 @@ def create_tf_example(example):
         'image/object/bbox/xmax': float_list_feature(xmaxs),
         'image/object/bbox/ymin': float_list_feature(ymins),
         'image/object/bbox/ymax': float_list_feature(ymaxs),
-        'image/object/bbox/is_occluded': int64_list_feature(is_occluded),
-        'image/object/bbox/is_truncated': int64_list_feature(is_truncated),
-        'image/object/bbox/is_group_of': int64_list_feature(is_group_of),
-        'image/object/bbox/is_depicted': int64_list_feature(is_depicted),
-        'image/object/bbox/is_inside': int64_list_feature(is_inside),
-        'image/object/class/is_inside': bytes_list_feature(classes_text),
+        # 'image/object/bbox/is_occluded': int64_list_feature(is_occluded),
+        # 'image/object/bbox/is_truncated': int64_list_feature(is_truncated),
+        # 'image/object/bbox/is_group_of': int64_list_feature(is_group_of),
+        # 'image/object/bbox/is_depicted': int64_list_feature(is_depicted),
+        # 'image/object/bbox/is_inside': int64_list_feature(is_inside),
+        'image/object/class/text': bytes_list_feature(classes_text),
         'image/object/class/label': int64_list_feature(classes),
     }))
     return tf_example

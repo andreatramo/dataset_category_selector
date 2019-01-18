@@ -25,7 +25,7 @@ tf.flags.DEFINE_string('input_test_dir', "/home/andreatramo/datasets/openimage/o
 tf.flags.DEFINE_string('output_dir', "/home/andreatramo/datasets/openimage/my_openimage",
                        'Path to the output directory')
 
-tf.flags.DEFINE_string('subdivision_mode', 111,
+tf.flags.DEFINE_string('subdivision_mode', "111",
                        'Instruction about how to divide the data')
 FLAGS = tf.flags.FLAGS
 
@@ -66,7 +66,6 @@ def main():
     print("\n********** OpenImage **********")
 
     images_not_found = 0
-
     img_list = []
 
     for i in range(step):
@@ -82,10 +81,9 @@ def main():
             object_found += database.get_num_object_found()
         images_not_found += database.get_img_not_found()
 
-    print("Number of object found: " + str(object_found))
-    print("Number of images not found: " + str(images_not_found))
-
     # shuffle the entire dataset and divide it in train, test and validation set
+
+    print("   3. Subdivision and writing tfrecord")
 
     # shuffle list
     random.shuffle(img_list)
@@ -94,21 +92,23 @@ def main():
     val_percentage = 0
     step = 0
 
-    if FLAGS.subdivision_mode == 111:
+    sub_mode = int(FLAGS.subdivision_mode)
+
+    if sub_mode == 111:
         test_percentage = 0.1
         val_percentage = 0.1
         step = 3
-    elif FLAGS.subdivision_mode == 110:
+    elif sub_mode == 110:
         val_percentage = 0.1
         step = 2
-    elif FLAGS.subdivision_mode == 101:
+    elif sub_mode == 101:
         test_percentage = 0.1
         step = 2
-    elif FLAGS.subdivision_mode == 11:
+    elif sub_mode == 11:
         test_percentage = 0.5
         val_percentage = 0.5
         step = 2
-    elif FLAGS.subdivision_mode == 0:
+    elif sub_mode == 0:
         test_percentage = 0
         val_percentage = 0
         step = 1
@@ -129,13 +129,13 @@ def main():
             tfrecord_path = FLAGS.output_dir + "/" + "my_oid_dataset_1"
             list_to_write = train_img
         else:
-            if i == 0 and FLAGS.subdivision_mode > 100:
+            if i == 0 and sub_mode > 100:
                 tfrecord_path = FLAGS.output_dir + "/" + "train_oid_dataset_1"
                 list_to_write = train_img
-            elif (i == 1 and FLAGS.subdivision_mode > 100) or (i == 0 and 0 < FLAGS.subdivision_mode < 100):
+            elif (i == 1 and sub_mode > 100) or (i == 0 and 0 < sub_mode < 100):
                 tfrecord_path = FLAGS.output_dir + "/" + "val_oid_dataset_1"
                 list_to_write = val_img
-            elif (i == 2 and FLAGS.subdivision_mode > 110) or (i == 1 and 0 < FLAGS.subdivision_mode < 100):
+            elif (i == 2 and sub_mode > 110) or (i == 1 and 0 < sub_mode < 100):
                 tfrecord_path = FLAGS.output_dir + "/" + "test_oid_dataset_1"
                 list_to_write = test_img
 
@@ -146,6 +146,10 @@ def main():
 
         tfrecord_path += ".tfrecord" 
         write_tfrecord(tfrecord_path, list_to_write)
+
+    print("Number of object found: " + str(object_found))
+    print("Number of images not found: " + str(images_not_found))
+    print("********** OpenImage **********")
 
     return
 
