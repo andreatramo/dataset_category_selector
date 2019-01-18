@@ -23,6 +23,13 @@ class LabeledImage(object):
         self.text = []
         self.label = []
 
+    def equal(self, img_name):
+
+        if img_name == self.filename:
+            return True
+        else:
+            return False
+
     # def set_height(self, val):
     #     self.height = val
     #

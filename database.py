@@ -29,6 +29,7 @@ class Database(object):
             self.num += 1
 
     def __init__(self, input_file_path, output_file_path):
+        self.img_list = []
         self.my_obj_list = []
         self.input_file = input_file_path[1:]
         self.output_dir = output_file_path
@@ -108,3 +109,9 @@ class Database(object):
             if my_obj.idx == idx:
                 return my_obj.label
         return "None"
+
+    def get_img(self, img_name):
+        for img in self.img_list:
+            if img.equal(img_name):
+                return img
+        return None

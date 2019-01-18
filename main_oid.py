@@ -2,6 +2,7 @@ from openimage_db import OpenimageDB
 import tensorflow as tf
 from tfrecord_utils import TFRecordWriter
 import os
+import random
 
 
 tf.flags.DEFINE_string('input_label_map', "/home/andreatramo/datasets/openimage/my_oid_label_map.pbtxt",
@@ -54,18 +55,10 @@ def main():
                   1: [FLAGS.input_val_box, FLAGS.input_val_verification, FLAGS.input_val_dir, "validation"],
                   2: [FLAGS.input_test_box, FLAGS.input_test_verification, FLAGS.input_test_dir, "test"]}
 
-    i = 1
-    tfrecord_path = FLAGS.output_dir + "/" + "my_oid_dataset.tfrecord_1"
-
-    while os.path.exists(tfrecord_path):
-        i += 1
-        tfrecord_path = tfrecord_path[:len(tfrecord_path)-1] + str(i)
-
-    writer = TFRecordWriter(tfrecord_path)
-
     images_not_found = 0
 
     step = 3
+    img_list = []
 
     for i in range(step):
         now_input = [FLAGS.input_label_map,
@@ -74,16 +67,50 @@ def main():
                      input_file[i][2],
                      input_file[i][3]]
         database = OpenimageDB(now_input, FLAGS.output_dir)
-        img_list = database.img_selector()
+        img_list += database.img_selector()
         if i == 0:
             object_found = database.get_num_object_found()
         else:
             object_found += database.get_num_object_found()
         images_not_found += database.get_img_not_found()
 
-        writer.write_tfrecord(img_list)
+    # shuffle the entire dataset and divide it in train, test and validation set
 
-    writer.close_tfrecord()
+    # shuffle list
+    random.shuffle(img_list)
+
+    train_percentage = 0.8
+    val_percentage = 0.1
+    test_percentage = 1 - train_percentage - val_percentage
+
+    train_thr = int(len(img_list)*train_percentage)
+    val_thr = int(len(img_list)*val_percentage)
+    test_thr = int(len(img_list) * test_percentage)
+
+    train_img = img_list[:train_thr]
+    val_img = img_list[train_thr:val_thr]
+    test_img = img_list[val_thr:]
+
+    # write the images and labels in a TFRecord
+    for i in range(3):
+        if i == 0:
+            tfrecord_path = FLAGS.output_dir + "/" + "train_oid_dataset.tfrecord_1"
+            list_to_write = train_img
+        if i == 1:
+            tfrecord_path = FLAGS.output_dir + "/" + "val_oid_dataset.tfrecord_1"
+            list_to_write = val_img
+        if i == 2:
+            tfrecord_path = FLAGS.output_dir + "/" + "test_oid_dataset.tfrecord_1"
+            list_to_write = test_img
+
+        n = 1
+        while os.path.exists(tfrecord_path):
+            n += 1
+            tfrecord_path = tfrecord_path[:len(tfrecord_path) - 1] + str(n)
+
+        writer = TFRecordWriter(tfrecord_path)
+        writer.write_tfrecord(list_to_write)
+        writer.close_tfrecord()
 
     print("Number of object found: " + str(object_found))
     print("Number of images not found: " + str(images_not_found))

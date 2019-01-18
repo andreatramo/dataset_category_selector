@@ -24,8 +24,8 @@ class OpenimageDB(Database):
 
             print("      2. Computing categories and images...")
 
-            # Declare a dictionary
-            img_dict = dict()
+            # Declare a list
+            img_list = []
 
             for row in csv_reader:
 
@@ -40,10 +40,12 @@ class OpenimageDB(Database):
 
                     image_path = self.input_file[2] + "/" + row[0] + ".jpg"
 
-                    # if the image is yet in the dictionary
-                    if row[0] in img_dict:
-                        labeled_img = img_dict[row[0]]
+                    # if the image is yet in the list
+                    new_img = self.get_img(row[0])
+                    if new_img is not None:
+                        labeled_img = new_img
                         exist = True
+                    # otherwise if the image is new
                     else:
                         labeled_img = LabeledImage()
                         with tf.gfile.Open(image_path, 'rb') as image_file:
@@ -56,7 +58,7 @@ class OpenimageDB(Database):
                             labeled_img.filename = str.encode(row[0])
                             labeled_img.encoded = image_file.read()
 
-                            img_dict[row[0]] = labeled_img
+                            img_list.append(labeled_img)
 
                     labeled_img.xmins.append(float(row[4]))
                     labeled_img.xmaxs.append(float(row[5]))
@@ -81,4 +83,4 @@ class OpenimageDB(Database):
 
         print("   END: " + directory_name)
 
-        return img_dict
+        return img_list

@@ -73,7 +73,7 @@ class TFRecordWriter(object):
 
     def write_tfrecord(self, examples):
 
-        for key, example in examples.items():
+        for example in examples:
             tf_example = self.create_tf_example(example)
             # Writing the serialized example.
             self.writer.write(tf_example.SerializeToString())
