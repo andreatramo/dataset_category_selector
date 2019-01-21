@@ -5,27 +5,35 @@ import os
 import random
 
 
-tf.flags.DEFINE_string('input_label_map', "/home/andreatramo/datasets/openimage/my_oid_label_map.pbtxt",
+tf.flags.DEFINE_string('input_label_map',
+                       "/home/andreatramo/datasets/openimage/my_oid_label_map.pbtxt",
                        'Path to the label map proto')
 
-tf.flags.DEFINE_string('input_train_label', "/home/andreatramo/datasets/openimage/openimage_original/annotations/train-annotations-bbox.csv",
+tf.flags.DEFINE_string('input_train_label',
+                       "/home/andreatramo/datasets/openimage/openimage_original/annotations/train-annotations-bbox.csv",
                        'Path to CSV containing train image bounding box annotations')
-tf.flags.DEFINE_string('input_val_label', "/home/andreatramo/datasets/openimage/openimage_original/annotations/validation-annotations-bbox.csv",
+tf.flags.DEFINE_string('input_val_label',
+                       None,#"/home/andreatramo/datasets/openimage/openimage_original/annotations/validation-annotations-bbox.csv",
                        'Path to CSV containing validation image bounding box annotations')
-tf.flags.DEFINE_string('input_test_label', "/home/andreatramo/datasets/openimage/openimage_original/annotations/test-annotations-bbox.csv",
+tf.flags.DEFINE_string('input_test_label',
+                       None,#"/home/andreatramo/datasets/openimage/openimage_original/annotations/test-annotations-bbox.csv",
                        'Path to CSV containing test image bounding box annotations')
 
-tf.flags.DEFINE_string('input_train_dir', "/home/andreatramo/datasets/openimage/openimage_original/images/train",
+tf.flags.DEFINE_string('input_train_dir',
+                       "/home/andreatramo/datasets/openimage/openimage_original/images/train",
                        'Path to the train image directory')
-tf.flags.DEFINE_string('input_val_dir', "/home/andreatramo/datasets/openimage/openimage_original/images/val",
+tf.flags.DEFINE_string('input_val_dir',
+                       None,#"/home/andreatramo/datasets/openimage/openimage_original/images/val",
                        'Path to the validation image directory')
-tf.flags.DEFINE_string('input_test_dir', "/home/andreatramo/datasets/openimage/openimage_original/images/test",
+tf.flags.DEFINE_string('input_test_dir',
+                       None,#"/home/andreatramo/datasets/openimage/openimage_original/images/test",
                        'Path to the test image directory')
 
-tf.flags.DEFINE_string('output_dir', "/home/andreatramo/datasets/openimage/my_openimage",
+tf.flags.DEFINE_string('output_dir',
+                       "/home/andreatramo/datasets/openimage/my_openimage",
                        'Path to the output directory')
 
-tf.flags.DEFINE_string('subdivision_mode', "111",
+tf.flags.DEFINE_string('subdivision_mode', "100",
                        'Instruction about how to divide the data')
 FLAGS = tf.flags.FLAGS
 
@@ -44,21 +52,21 @@ def main():
     step = 0
     input_file = dict()
 
-    if FLAGS.input_train_label is not None and FLAGS.input_train_dir is not None:
+    if (FLAGS.input_train_label is not None) and (FLAGS.input_train_dir is not None):
         input_file[step] = [FLAGS.input_train_label, FLAGS.input_train_dir, "train"]
         step += 1
-    elif FLAGS.input_train_label is None ^ FLAGS.input_train_dir is None:
-        raise ValueError('One between the train annotations path or the train images directory, is not present.')
-    if FLAGS.input_val_label is not None and FLAGS.input_val_dir is not None:
+    elif (FLAGS.input_train_label is None) ^ (FLAGS.input_train_dir is None):
+        raise ValueError('One between train annotations path or train images directory, is not present.')
+    if (FLAGS.input_val_label is not None) and (FLAGS.input_val_dir is not None):
         input_file[step] = [FLAGS.input_val_label, FLAGS.input_val_dir, "validation"]
         step += 1
-    elif FLAGS.input_val_label is None ^ FLAGS.input_val_dir is None:
-        raise ValueError('One between the validation annotations path or the validation images directory, is not present.')
-    if FLAGS.input_test_label is not None and FLAGS.input_test_dir is not None:
+    elif (FLAGS.input_val_label is None) ^ (FLAGS.input_val_dir is None):
+        raise ValueError('One between validation annotations path or validation images directory, is not present.')
+    if (FLAGS.input_test_label is not None) and (FLAGS.input_test_dir is not None):
         input_file[step] = [FLAGS.input_test_label, FLAGS.input_test_dir, "test"]
         step += 1
-    elif FLAGS.input_test_label is None ^ FLAGS.input_test_dir is None:
-        raise ValueError('One between the test annotations path or the test images directory, is not present.')
+    elif (FLAGS.input_test_label is None) ^ (FLAGS.input_test_dir is None):
+        raise ValueError('One between test annotations path or test images directory, is not present.')
 
     if step < 1:
         raise ValueError('No train, test or validation path present. Give in input almost one of them.')
@@ -67,6 +75,8 @@ def main():
 
     images_not_found = 0
     img_list = []
+
+    print("1. Reading csv file...")
 
     for i in range(step):
         now_input = [FLAGS.input_label_map,
@@ -83,7 +93,10 @@ def main():
 
     # shuffle the entire dataset and divide it in train, test and validation set
 
-    print("   3. Subdivision and writing tfrecord")
+    print("\n   Number of object found: " + str(object_found))
+    print("   Number of images not found: " + str(images_not_found))
+
+    print("\n2. Image subdivision and tfrecord writing...")
 
     # shuffle list
     random.shuffle(img_list)
@@ -142,13 +155,20 @@ def main():
         n = 1
         while os.path.exists(tfrecord_path + ".tfrecord"):
             n += 1
-            tfrecord_path = tfrecord_path[:len(tfrecord_path) - 1] + str(n)
+            if n < 11:
+                tfrecord_path = tfrecord_path[:len(tfrecord_path) - 1] + str(n)
+            else:
+                tfrecord_path = tfrecord_path[:len(tfrecord_path) - 2] + str(n)
 
         tfrecord_path += ".tfrecord" 
         write_tfrecord(tfrecord_path, list_to_write)
+    print("      DONE!")
 
-    print("Number of object found: " + str(object_found))
-    print("Number of images not found: " + str(images_not_found))
+    print("\n   Number of train, validation and test images: "
+          "[" + str(train_thr) + ", "
+          + str(val_thr - train_thr) + ", "
+          + str(test_thr - val_thr) + "]")
+
     print("********** OpenImage **********")
 
     return

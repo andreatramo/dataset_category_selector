@@ -15,13 +15,10 @@ class OpenimageDB(Database):
 
         directory_name = self.input_file[2]
 
-        print("START: " + directory_name)
-        print("   1. Loading csv file...")
+        print("    - " + directory_name + " file...")
 
         with open(self.input_file[0], 'r') as csv_file:
             csv_reader = csv.reader(csv_file)
-            print("      DONE!")
-            print("   2. Computing labels and images...")
 
             # Declare a list
             img_list = []
@@ -29,7 +26,8 @@ class OpenimageDB(Database):
 
             now_time = 0
             i = 0
-            total_time = 14610230  # number computed using: sum(1 for line in csv_file)
+            total_time = sum(1 for line in csv_file)
+            csv_file.seek(0)
 
             for row in csv_reader:
                 percentage_time = int(100 * now_time / total_time)
@@ -92,6 +90,7 @@ class OpenimageDB(Database):
                         self.img_not_found += 1
         sys.stdout.write("\r" + "      DONE!")
         sys.stdout.flush()
+        print("")
         # print("END: " + directory_name)
 
         return img_list

@@ -8,7 +8,7 @@ class Database(object):
 
     class MyObject:
 
-        MAX_OBJ_NUM = 10000
+        MAX_OBJ_NUM = 5000
 
         def __init__(self, idx, label, name):
             self.idx = idx
